@@ -144,6 +144,50 @@ class BotDatabase(object):
 			if BotDatabase.__con:
 				BotDatabase.__con.rollback()
 			return False
+	
+	def removeCommand(self,command):
+		try:
+			cur = BotDatabase.__con.cursor()
+			if type(command) is int or (type(command) is str and command.isdigit()):
+				cur.execute("DELETE FROM members_commands WHERE commands_id = %s", (str(command),)) 
+				cur.execute("DELETE FROM commands WHERE commands_id = %s ", (str(command),))
+			else:
+				cur.execute("DELETE FROM members_commands WHERE commands_id = ( " +
+						"SELECT commands_id FROM commands WHERE command = %s " + 
+					")", (str(command),))
+				cur.execute("DELETE FROM commands WHERE command = %s ", (command,))
+			BotDatabase.__con.commit()	
+			return True	
+	
+		except psycopg2.DatabaseError, e: 	
+			if BotDatabase.__con:
+				BotDatabase.__con.rollback()
+			return False
+
+	def getHintByCommand(self,command):
+		try:
+			cur = BotDatabase.__con.cursor()
+			cur.execute("SELECT short_hint FROM commands WHERE command = %s ", (command,))
+			buf = cur.fetchone()
+			return (False , buf[0])[bool(buf[0])]
+			
+		except psycopg2.DatabaseError, e: 	
+			if BotDatabase.__con:
+				BotDatabase.__con.rollback()
+			return False
+
+	def getDescriptionByCommand(self,command):
+		try:
+			cur = BotDatabase.__con.cursor()
+			cur.execute("SELECT description FROM commands WHERE command = %s ", (command,))
+			buf = cur.fetchone()
+			return (False , buf[0])[bool(buf[0])]
+						
+
+		except psycopg2.DatabaseError, e: 	
+			if BotDatabase.__con:
+				BotDatabase.__con.rollback()
+			return False
 
 	def getTasksByMemberId(self,user_id):
 		try:
