@@ -80,7 +80,7 @@ class BotDatabase(object):
 		return(False, True)[bool(self.addMemberCommandByMemberId(user_name,command))]
 
 	def getCommands(self):
-		return self._select("SELECT * FROM commands",False,False)
+		return self._select("SELECT command FROM commands",False,False)
 	
 	def addCommand(self,dataset):
 		if type(dataset) is tuple and len(dataset) == 3:
