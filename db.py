@@ -85,6 +85,40 @@ class BotDatabase(object):
 				BotDatabase.__con.rollback()
 			return False
 
+	def addMemberCommandByMemberId(self, user_id, command):
+		try:
+			if not type(command) is int and not (type(command) is str or command.isdigit()):
+				cur = BotDatabase.__con.cursor()
+				cur.execute("SELECT commands_id FROM commands " +
+					"WHERE command = %s LIMIT 1" , (command,))
+				command = cur.fetchone()
+			cur = BotDatabase.__con.cursor()
+			cur.execute("INSERT INTO members_commands (members_id,commands_id) " +
+				"VALUES ( %s , %s )", (user_id, command))
+			BotDatabase.__con.commit()
+			return True
+		
+		except psycopg2.DatabaseError, e: 	
+			if BotDatabase.__con:
+				BotDatabase.__con.rollback()
+			return False
+
+	def addMemberCommandByMemberName(self, user_name, command):
+		try:
+			cur = BotDatabase.__con.cursor()
+			cur.execute("SELECT members_id FROM members " +
+				"WHERE name = %s LIMIT 1" , (user_name,))
+			user_name = cur.fetchone()
+			if self.addMemberCommandByMemberId(user_name,command):
+				return True
+			else:
+				return False
+		
+		except psycopg2.DatabaseError, e: 	
+			if BotDatabase.__con:
+				BotDatabase.__con.rollback()
+			return False
+
 	def getCommands(self):
 		try:
 			cur = BotDatabase.__con.cursor()
@@ -95,8 +129,23 @@ class BotDatabase(object):
 			if BotDatabase.__con:
 				BotDatabase.__con.rollback()
 			return False
+	
+	def addCommand(self,dataset):
+		try:
+			if type(dataset) is tuple and len(dataset) == 3:
+				cur = BotDatabase.__con.cursor()
+				cur.execute("INSERT INTO commands (command, short_hint, description) "+
+					"VALUES (%s,%s,%s)", dataset)
+				BotDatabase.__con.commit()
+			else:
+				raise TypeError('i requested a tuple with len == 3!!!111ELF')
+		
+		except psycopg2.DatabaseError, e: 	
+			if BotDatabase.__con:
+				BotDatabase.__con.rollback()
+			return False
 
-	def getTasksByUserId(self,user_id):
+	def getTasksByMemberId(self,user_id):
 		try:
 			cur = BotDatabase.__con.cursor()
 			cur.execute("SELECT * FROM tasks WHERE members_id = %s ", (user_id,))
@@ -107,7 +156,18 @@ class BotDatabase(object):
 				BotDatabase.__con.rollback()
 			return False
 
-	def getUserCommandsByUserId(self,user_id):
+	def getMembers(self):
+		try:
+			cur = BotDatabase.__con.cursor()
+			cur.execute("SELECT * FROM members")
+			return cur.fetchall()
+
+		except psycopg2.DatabaseError, e: 	
+			if BotDatabase.__con:
+				BotDatabase.__con.rollback()
+			return False
+
+	def getMemberCommandsByMemberId(self,user_id):
 		try:
 			cur = BotDatabase.__con.cursor()
 			retTuple = tuple()
@@ -130,7 +190,7 @@ class BotDatabase(object):
 				BotDatabase.__con.rollback()
 			return False
 
-	def getUserCommandsByUserNames(self,user_names):
+	def getMemberCommandsByMemberNames(self,user_names):
 		try:
 			if type(user_names) is str:
 				user_names = (user_names,)
@@ -140,7 +200,9 @@ class BotDatabase(object):
 			cur = BotDatabase.__con.cursor()
 			for i in user_names:
 				cur.execute("SELECT members_id FROM members WHERE name = %s ", (i,))
-				retDict[i[0]] = self.getUserCommandsByUserId(cur.fetchone())
+				buf=self.getMemberCommandsByMemberId(cur.fetchone())
+				if buf:
+					retDict[i[0]] = buf
 			return retDict
 		
 		except psycopg2.DatabaseError, e: 	
@@ -148,7 +210,7 @@ class BotDatabase(object):
 				BotDatabase.__con.rollback()
 			return False
 	
-	def getUsersWithCommands(self):
+	def getMembersWithCommands(self):
 		try:	
 			buf = tuple()
 			cur = BotDatabase.__con.cursor()
@@ -158,7 +220,7 @@ class BotDatabase(object):
 				return False
 			for i in result:
 				 buf += (i,)
-			return self.getUserCommandsByUserNames(buf)
+			return self.getMemberCommandsByMemberNames(buf)
 		
 		except psycopg2.DatabaseError, e: 	
 			if BotDatabase.__con:
