@@ -175,15 +175,56 @@ class BotDatabase(object):
 			return False
 						
 
+import re
+import time 
+
 class BotTasks(BotDatabase):
 	
-	__instance = None
+	__instance 	= None
+	__fifo 			= None
 
 	def __init__(self):
 		BotTasks.__instance = BotDatabase()
 		BotTasks.__instance._connect()
+		self.__readConfig()
 
-	def addTimerSingleExec(self, exec_command):
-		return BotTasks.__instance._select("SELECT * FROM members", False, False)
+	def __readConfig(self):
+		try:
+			config = ConfigParser.RawConfigParser()
+			config.read('bot.cfg')
+			BotTasks.__fifo=config.get('Fifo','path')
+		except:
+			raise 'please check bot.cfg'
+
+	def __prepareTime(self,time)
+		parsed = re.search('(^\d\d?\.\d\d?\.\d{4}\s+\d\d?:\d\d$)', time)
+		if parsed:
+			return (parsed.group(0), 0)
+		parsed = re.search('(^\d\d?:\d\d$)', time)
+		if parsed:
+			return (parsed.group(0), 1)
+		if time is int or (time is str and time.isdigit()):
+			return (time, 3)
+		return False
+	
+	def runTasks(self):
+		print("1")	
+	
+	def addTimer(self, exec_command , time, period=True):
+		if self.__prepareTime(time)
+			a , b = self.__prepareTime(time)
+			if b == 0:
+				return BotTasks.__instance._insert_del("INSERT INTO tasks (exec_command,exec_time) "+
+					" VALUES (%s,%s::timstamptz)", (exec_command, a))
+			elif b == 1:
+				a = time.strftime("%d.%m.%Y")+' '+a
+				return BotTasks.__instance._insert_del("INSERT INTO tasks (exec_command,exec_time,exec_period) "+
+					" VALUES (%s,%s::timstamptz,%s)", (exec_command, a, period))
+			elif b == 2:
+				return BotTasks.__instance._insert_del("INSERT INTO tasks (exec_command,exec_second,exec_period) "+
+					" VALUES (%s,%s,%s)", (exec_command, a, period))
+		return False
+				
+				
 
 
