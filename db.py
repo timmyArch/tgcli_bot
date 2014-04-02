@@ -110,6 +110,12 @@ class BotDatabase(object):
 	def getTasksByMemberId(self,user_id):
 		return self._select("SELECT * FROM tasks WHERE members_id = %s ", (user_id,), False)
 
+	def getTasksByMemberName(self, user_name):
+		a = self._select("SELECT member_id FROM members WHERE name = %s ", (user_name,), True)	
+		if a:
+			return self.getTasksByMemberName(a[1])
+		return False
+
 	def getMembers(self):
 		return self._select("SELECT * FROM members", False, False)
 
