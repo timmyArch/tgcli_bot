@@ -130,18 +130,11 @@ class BotDatabase(object):
 			retTuple += (i[0],)
 		return retTuple
 
-	def getMemberCommandsByMemberNames(self,user_names):
-		if type(user_names) is str:
-			user_names = (user_names,)
-		elif not type(user_names) is tuple:
-			raise TypeError('tuple , Monkey !!')
-		retDict = dict()
-		for i in user_names:
-			res = self._select("SELECT members_id FROM members WHERE name = %s ", (i,), True)
-			buf=self.getMemberCommandsByMemberId(res)
-			if buf:
-				retDict[i[0]] = buf
-		return retDict
+	def getMemberCommandsByMemberNames(self,user_name):
+		if not type(user_name) is str:
+			raise TypeError('only strings accepted')
+		res = self._select("SELECT members_id FROM members WHERE name = %s ", (user_name,), True)
+		return self.getMemberCommandsByMemberId(res)
 		
 	def getMembersWithCommands(self):
 		buf = tuple()
@@ -181,4 +174,16 @@ class BotDatabase(object):
 				BotDatabase.__con.rollback()
 			return False
 						
+
+class BotTasks(BotDatabase):
+	
+	__instance = None
+
+	def __init__(self):
+		BotTasks.__instance = BotDatabase()
+		BotTasks.__instance._connect()
+
+	def addTimerSingleExec(self, exec_command):
+		return BotTasks.__instance._select("SELECT * FROM members", False, False)
+
 
