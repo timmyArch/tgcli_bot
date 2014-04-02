@@ -59,10 +59,12 @@ class BotDatabase(object):
 			cur = BotDatabase.__con.cursor()
 			cur.execute("INSERT INTO members (number, name) VALUES (%s,%s)", user)
 			BotDatabase.__con.commit()	
-		
+			return True
+
 		except psycopg2.DatabaseError, e: 	
 			if BotDatabase.__con:
 				BotDatabase.__con.rollback()
+			return False
 
 	def removeMember(self, user):
 		try:
@@ -76,20 +78,23 @@ class BotDatabase(object):
 					")", (str(user),))
 				cur.execute("DELETE FROM members WHERE name = %s ", (user,))
 			BotDatabase.__con.commit()	
+			return True
 		
 		except psycopg2.DatabaseError, e: 	
 			if BotDatabase.__con:
 				BotDatabase.__con.rollback()
+			return False
 
 	def getCommands(self):
 		try:
 			cur = BotDatabase.__con.cursor()
 			cur.execute("SELECT * FROM commands")
 			return cur.fetchall()
-		
+
 		except psycopg2.DatabaseError, e: 	
 			if BotDatabase.__con:
 				BotDatabase.__con.rollback()
+			return False
 
 	def getTasksByUserId(self,user_id):
 		try:
@@ -100,6 +105,7 @@ class BotDatabase(object):
 		except psycopg2.DatabaseError, e: 	
 			if BotDatabase.__con:
 				BotDatabase.__con.rollback()
+			return False
 
 	def getUserCommandsByUserId(self,user_id):
 		try:
@@ -114,7 +120,7 @@ class BotDatabase(object):
 			)
 			result = cur.fetchall()
 			if not result:
-				return None
+				return False
 			for i in result:
 				retTuple += (i[0],)
 			return retTuple
@@ -122,6 +128,7 @@ class BotDatabase(object):
 		except psycopg2.DatabaseError, e: 	
 			if BotDatabase.__con:
 				BotDatabase.__con.rollback()
+			return False
 
 	def getUserCommandsByUserNames(self,user_names):
 		try:
@@ -139,6 +146,7 @@ class BotDatabase(object):
 		except psycopg2.DatabaseError, e: 	
 			if BotDatabase.__con:
 				BotDatabase.__con.rollback()
+			return False
 	
 	def getUsersWithCommands(self):
 		try:	
@@ -147,7 +155,7 @@ class BotDatabase(object):
 			cur.execute("SELECT name FROM members")
 			result = cur.fetchall()
 			if not result:
-				return None
+				return False
 			for i in result:
 				 buf += (i,)
 			return self.getUserCommandsByUserNames(buf)
@@ -155,5 +163,6 @@ class BotDatabase(object):
 		except psycopg2.DatabaseError, e: 	
 			if BotDatabase.__con:
 				BotDatabase.__con.rollback()
+			return False
 
 
