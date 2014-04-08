@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 """
 
             DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
@@ -36,7 +36,7 @@ class BotDatabase(object):
 	def __readConfig(self):
 		try:
 			config = ConfigParser.RawConfigParser()
-			config.read('bot.cfg')
+			config.read('/home/timmy/tgcli_bot/bot.cfg')
 			BotDatabase.__database=config.get('Database','db_name')
 			BotDatabase.__password=config.get('Database','password')
 			BotDatabase.__user		=config.get('Database','user')
@@ -145,6 +145,9 @@ class BotDatabase(object):
 			 buf += (i,)
 		return self.getMemberCommandsByMemberNames(buf)
 
+	def select(self,query,values,onlyOneResult):
+		return self._select(query,values,onlyOneResult)
+	
 	def _select (self, query, values, onlyOneResult ):
 		try:
 			cur = BotDatabase.__con.cursor()
@@ -161,7 +164,7 @@ class BotDatabase(object):
 			if BotDatabase.__con:
 				BotDatabase.__con.rollback()
 			return False
-
+	
 	def _insert_del(self, query , values):
 		try:
 			cur = BotDatabase.__con.cursor()
@@ -172,6 +175,7 @@ class BotDatabase(object):
 		except psycopg2.DatabaseError, e: 	
 			if BotDatabase.__con:
 				BotDatabase.__con.rollback()
+			print(e)
 			return False
 						
 
@@ -196,33 +200,36 @@ class BotTasks(BotDatabase):
 		except:
 			raise 'please check bot.cfg'
 
-	def __prepareTime(self,time)
-		parsed = re.search('(^\d\d?\.\d\d?\.\d{4}\s+\d\d?:\d\d$)', time)
+	def __prepareTime(self,timer):
+		timer = str(timer)
+		parsed = re.search('(^\d\d?\.\d\d?\.\d{4}\s+\d\d?:\d\d$)', timer)
 		if parsed:
 			return (parsed.group(0), 0)
-		parsed = re.search('(^\d\d?:\d\d$)', time)
+		parsed = re.search('(^\d\d?:\d\d$)', timer)
 		if parsed:
 			return (parsed.group(0), 1)
-		if time is int or (time is str and time.isdigit()):
-			return (time, 3)
+		if timer.isdigit():
+			return (timer, 2)
 		return False
 	
-	def runTasks(self):
-		print("1")	
-	
-	def addTimer(self, exec_command , time, period=True):
-		if self.__prepareTime(time)
-			a , b = self.__prepareTime(time)
+	def taskScheduler(self):	
+		BotTasks.__instance._select("SELECT command_exec FROM tasks "+
+			"WHERE (exec_period = true and exec_second)" )	
+
+	def addTimer(self, member_id ,exec_command , timer, period=True):
+		if self.__prepareTime(timer):
+			a , b = self.__prepareTime(timer)
 			if b == 0:
-				return BotTasks.__instance._insert_del("INSERT INTO tasks (exec_command,exec_time) "+
-					" VALUES (%s,%s::timstamptz)", (exec_command, a))
+				return BotTasks.__instance._insert_del("INSERT INTO tasks (members_id,exec_command,exec_time) "+
+					" VALUES (%s,%s,%s::timestamptz)", (member_id,exec_command, a))
 			elif b == 1:
 				a = time.strftime("%d.%m.%Y")+' '+a
-				return BotTasks.__instance._insert_del("INSERT INTO tasks (exec_command,exec_time,exec_period) "+
-					" VALUES (%s,%s::timstamptz,%s)", (exec_command, a, period))
+				return BotTasks.__instance._insert_del("INSERT INTO tasks (members_id,exec_command,exec_time,exec_period) "+
+					" VALUES (%s,%s,%s::timestamptz,%s)", (member_id,exec_command, a, period))
 			elif b == 2:
-				return BotTasks.__instance._insert_del("INSERT INTO tasks (exec_command,exec_second,exec_period) "+
-					" VALUES (%s,%s,%s)", (exec_command, a, period))
+				return BotTasks.__instance._insert_del("INSERT INTO tasks (members_id,exec_command, "+
+					" exec_second,exec_period, exec_time) "+
+					" VALUES (%s,%s,%s,%s,now())", (member_id,exec_command, a, period))
 		return False
 				
 				

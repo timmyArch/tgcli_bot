@@ -1,0 +1,58 @@
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{# Display a form #}
+<head>
+	<title>TelyBot</title>
+</head>
+<body>
+	{% if fail %}
+		<div class="alert alert-warning alert-dismissable">
+			<button type="button" class="close" 
+				data-dismiss="alert" aria-hidden="true"></button>
+			<strong>Zugang zum TelyBot. Bitte Anmelden.</strong>
+		</div>
+	{% endif %}
+	<div class="well well-lg col-md-6 col-md-offset-3">
+
+	{% if not verify %}
+		<form action="/auth/login" method="post" class="form">
+			{% csrf_token %}		
+			
+			<div class="form-group">
+				<label for="username"></label>
+				<input type="text" class="form-control" 
+					id="username" name="username" placeholder="<Vorname>_<Nachname> oder <Gruppenname>">
+			</div>
+	{% else %}
+		<div class="alert alert-info alert-dismissable">
+			<button type="button" class="close" 
+				data-dismiss="alert" aria-hidden="true">&times;</button>
+			<strong>Information, Achtung!!!ELF</strong> 
+				Du solltest in kuerzester Zeit via Telegram eine Naricht 
+				mit dem Schluessel erhalten haben. Bitte gib diesen unten an um dich Anzumelden. 
+				Du hast hierfuer 20 Minuten zeit.
+		</div>
+		<form action="/auth/verify" method="post" class="form">
+			{% csrf_token %}	
+			<div class="form-group">
+				<label for="token"></label>
+				<input type="text" class="form-control" 
+					id="token" name="token" placeholder="<Key hier eingeben>">
+			</div>
+	{% endif %}
+	{% buttons %}
+			<button type="submit" class="btn btn-primary">
+					{% bootstrap_icon "star" %} Weiter
+			</button>
+	{% endbuttons %}
+	</form>
+	</div>
+</body>
