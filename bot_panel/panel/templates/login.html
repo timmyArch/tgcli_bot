@@ -1,18 +1,10 @@
+
+{% extends "base.html" %}
+
+
 {% load bootstrap3 %}
 
-{# Load CSS and JavaScript #}
-
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-
-{# Display django.contrib.messages as Bootstrap alerts #}
-{% bootstrap_messages %}
-
-{# Display a form #}
-<head>
-	<title>TelyBot</title>
-</head>
-<body>
+{% block content %}
 	{% if fail %}
 		<div class="alert alert-warning alert-dismissable">
 			<button type="button" class="close" 
@@ -54,5 +46,4 @@
 			</button>
 	{% endbuttons %}
 	</form>
-	</div>
-</body>
+{% endblock %}

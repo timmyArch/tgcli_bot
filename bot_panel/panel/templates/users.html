@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+	<div class="col-md-3 col-md-offset-9">
+		<a href="/users/add" class="btn btn-warning btn-lg btn-block">Neuer Benutzer</a>
+	</div>
+	<table class="table table-striped">
+  	<thead>
+			<tr>
+				<td><strong>Benutzer Nr.</strong></td>
+				<td><strong>Nummer</strong></td>
+				<td><strong>Benutzername</strong></td>
+				<td></td>
+			</tr>
+		</thead>
+		<tbody>
+			{% if users %}
+				{% for user in users %}
+					<tr>
+						<td><a href="/users/{{ user.0 }}">{{ user.0 }}</a></td>
+						<td>{{ user.1 }}</td>
+						<td>{{ user.2 }}</td>
+						<td><a href="/users/{{ user.0 }}/del">Loeschen?</a></td>
+					</tr>
+				{% endfor %}
+			{% else %}
+				<tr>
+					<td colspan="4">Es wurden noch keine Benutzer angelegt.</td>
+				</tr>
+			{% endif %}
+		</tbody>
+	</table>
+{% endblock %}

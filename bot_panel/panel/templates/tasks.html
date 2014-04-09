@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+	<div class="col-md-3 col-md-offset-9">
+		<a href="/tasks/add" class="btn btn-warning btn-lg btn-block">Neuer Task</a>
+	</div>
+	<table class="table table-striped">
+  	<thead>
+			<tr>
+				<td><strong>Task Nr.</strong></td>
+				<td><strong>Kommando</strong></td>
+				<td><strong>periodisch?</strong></td>
+			</tr>
+		</thead>
+		<tbody>
+			{% if tasks %}
+				{% for task in tasks %}
+					<tr>
+						<td><a href="/tasks/{{ task.0 }}">{{ task.0 }}</a></td>
+						<td>{{ task.2 }}</td>
+						<td>{{ task.5 }}</td>
+					</tr>
+				{% endfor %}
+			{% else %}
+				<tr>
+					<td colspan="4">Es wurden noch keine Tasks angelegt.</td>
+				</tr>
+			{% endif %}
+		</tbody>
+	</table>
+{% endblock %}

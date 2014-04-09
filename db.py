@@ -36,7 +36,7 @@ class BotDatabase(object):
 	def __readConfig(self):
 		try:
 			config = ConfigParser.RawConfigParser()
-			config.read('/home/timmy/tgcli_bot/bot.cfg')
+			config.read('/root/tgcli_bot/bot.cfg')
 			BotDatabase.__database=config.get('Database','db_name')
 			BotDatabase.__password=config.get('Database','password')
 			BotDatabase.__user		=config.get('Database','user')
@@ -51,6 +51,11 @@ class BotDatabase(object):
 				user=BotDatabase.__user, 
 				password=BotDatabase.__password,
 				host=BotDatabase.__host)
+
+	def getAdmins(self):
+		config = ConfigParser.RawConfigParser()
+		config.read('/root/tgcli_bot/bot.cfg')
+		return config.get('Roles','admin').split(',')
 
 	def addMember(self,user):
 		if not type(user) is tuple:
@@ -68,16 +73,23 @@ class BotDatabase(object):
 			b = self._insert_del("DELETE FROM members WHERE name = %s ", (user,))
 		return (False, True)[bool(a and b)]
 
+	def getMemberById(self, user_id):
+		return self._select("SELECT * FROM members WHERE members_id = %s ",(user_id,),False)
+
 	def addMemberCommandByMemberId(self, user_id, command):
-		if not type(command) is int and not (type(command) is str or command.isdigit()):
+		if not type(command) is int and not (type(command) is str and command.isdigit()):
 			command = self._select("SELECT commands_id FROM commands WHERE command = %s LIMIT 1" , (command,) , True)
+		print((user_id, command))
 		return self._insert_del("INSERT INTO members_commands (members_id, commands_id) VALUES ( %s , %s )", 
 			(user_id, command))
 
 	def addMemberCommandByMemberName(self, user_name, command):
-		user_name = self._select("SELECT members_id FROM members " +
+		user_id = self._select("SELECT members_id FROM members " +
 			"WHERE name = %s LIMIT 1" , (user_name,), True)
-		return(False, True)[bool(self.addMemberCommandByMemberId(user_name,command))]
+		print(user_id)
+		if user_id:
+			return(False, True)[bool(self.addMemberCommandByMemberId(user_id[0],command))]
+		return False
 
 	def getCommands(self):
 		return self._select("SELECT command FROM commands",False,False)
@@ -131,18 +143,29 @@ class BotDatabase(object):
 		return retTuple
 
 	def getMemberCommandsByMemberNames(self,user_name):
-		if not type(user_name) is str:
-			raise TypeError('only strings accepted')
-		res = self._select("SELECT members_id FROM members WHERE name = %s ", (user_name,), True)
-		return self.getMemberCommandsByMemberId(res)
+		if type(user_name) is str:
+			user_name = (user_name,)
+		elif type(user_name) is list:
+			True
+		else:
+			raise TypeError('check params')
+		if len(user_name) == 1:
+			res = self._select("SELECT members_id FROM members WHERE name = %s ", tuple(user_name), True)
+			return self.getMemberCommandsByMemberId(res)
+		else:
+			user_command=dict()
+			for i in user_name:
+				buf = self._select("SELECT members_id FROM members WHERE name = %s ", (i,), True)
+				user_command[i[0]] = self.getMemberCommandsByMemberId(buf)
+			return user_command
 		
 	def getMembersWithCommands(self):
-		buf = tuple()
+		buf = list()
 		result = self._select("SELECT name FROM members", False, False)
 		if not result:
 			return False
 		for i in result:
-			 buf += (i,)
+			 buf.append(i)
 		return self.getMemberCommandsByMemberNames(buf)
 
 	def select(self,query,values,onlyOneResult):
@@ -195,7 +218,7 @@ class BotTasks(BotDatabase):
 	def __readConfig(self):
 		try:
 			config = ConfigParser.RawConfigParser()
-			config.read('bot.cfg')
+			config.read('/root/tgcli_bot/bot.cfg')
 			BotTasks.__fifo=config.get('Fifo','path')
 		except:
 			raise 'please check bot.cfg'
@@ -215,6 +238,12 @@ class BotTasks(BotDatabase):
 	def taskScheduler(self):	
 		BotTasks.__instance._select("SELECT command_exec FROM tasks "+
 			"WHERE (exec_period = true and exec_second)" )	
+	
+	def getTaskById(self, task_id):
+		return BotTasks.__instance._select("SELECT * FROM tasks WHERE tasks_id = %s", (task_id,), False)
+		
+	def delTask(self,task_id):
+		return BotTasks.__instance._insert_del("DELETE FROM tasks WHERE tasks_id = %s", (task_id,))
 
 	def addTimer(self, member_id ,exec_command , timer, period=True):
 		if self.__prepareTime(timer):
@@ -232,6 +261,4 @@ class BotTasks(BotDatabase):
 					" VALUES (%s,%s,%s,%s,now())", (member_id,exec_command, a, period))
 		return False
 				
-				
-
 

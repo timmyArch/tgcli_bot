@@ -28,6 +28,12 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+TEMPLATE_CONTEXT_PROCESSORS = (
+		'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.request',
+		'django.contrib.messages.context_processors.messages',
+)
+
 
 INSTALLED_APPS = (
     'django.contrib.admin',
@@ -49,7 +55,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 TEMPLATE_DIRS = (
-    BASE_DIR + '/panel/templates/'
+    BASE_DIR + '/panel/templates/',
 )
 
 ROOT_URLCONF = 'bot_panel.urls'
@@ -80,6 +86,7 @@ USE_L10N = True
 
 USE_TZ = True
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/

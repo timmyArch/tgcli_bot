@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+
+
+{% block content %}
+	<div class="jumbotron">
+		<h1>Huhu, {{ request.session.username }} </h1>
+		<p>Du hast dich nun im Frontend erfolgreich angemeldet. Schau dich einfach um.</p>
+		<p><a class="btn btn-primary btn-lg" role="button">Klicken!!111ELF</a></p>
+	</div>
+{% endblock %}

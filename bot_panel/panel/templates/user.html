@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+	<form class="form-horizontal" method="POST" action="/users/add" role="form">
+	{% csrf_token %}
+	{% if not info %}
+  <div class="form-group">
+    <label for="member" class="col-sm-2 control-label">Benutzername</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="member" name="member" >
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="number" class="col-sm-2 control-label">Nummer</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="number" name="number" >
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="exec_command" class="col-sm-2 control-label">Kommandos</label>
+    <div class="col-sm-10">
+			<select class="form-control" multiple name="exec_command" size="3">
+			{% if commands %}
+				{% for command in commands %}
+					<option>{{ command }}</option>
+				{% endfor %}
+			{% endif %}
+			</select>
+    </div>
+  </div>
+	{% else %}
+  <div class="form-group">
+    <label for="member" class="col-sm-2 control-label">Benutzername</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="member" name="member" 
+				value="{{username}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="number" class="col-sm-2 control-label">Nummer</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="number" name="number" 
+				value="{{number}}">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="exec_command" class="col-sm-2 control-label">Kommandos</label>
+    <div class="col-sm-10">
+			<select class="form-control" name="exec_command" size="3">
+			{% if commands %}
+				{% for command in commands %}
+					<option>{{ command }}</option>
+				{% endfor %}
+			{% endif %}
+			</select>
+    </div>
+  </div>
+	{% endif %}
+	{% if not info %}
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button type="submit" class="btn btn-default">Hinzufuegen</button>
+    </div>
+  </div>
+	{% endif %}
+</form>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+	<div class="col-md-3 col-md-offset-9">
+		<a href="/commands/add" class="btn btn-warning btn-lg btn-block">Neues Kommando</a>
+	</div>
+	<table class="table table-striped">
+  	<thead>
+			<tr>
+				<td><strong>Kommando Nr.</strong></td>
+				<td><strong>Name</strong></td>
+				<td><strong>Kurzbeschreibung</strong></td>
+				<td></td>
+			</tr>
+		</thead>
+		<tbody>
+			{% if commands %}
+				{% for command in commands %}
+					<tr>
+						<td>{{ command.0 }}</td>
+						<td>{{ command.1 }}</td>
+						<td>{{ command.2 }}</td>
+						<td><a href="/commands/{{ command.0 }}/del">Loeschen?</a></td>
+					</tr>
+				{% endfor %}
+			{% else %}
+				<tr>
+					<td colspan="4">Es wurden noch keine Kommandos angelegt.</td>
+				</tr>
+			{% endif %}
+		</tbody>
+	</table>
+{% endblock %}
