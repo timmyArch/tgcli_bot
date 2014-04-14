@@ -48,7 +48,7 @@ fBOFH = "bofh.txt"
 
 def __checkMessage():
 	membercommands = botDatabase.getMemberCommandsByMemberNames(sName)
-	if membercommands and sMessage.split(' ')[0][1:] in membercommands
+	if membercommands and sMessage.split(' ')[0][1:] in membercommands:
 		return __performCommand(sMessage)
 	else:
 		if sMessage in botDatabase.getCommands():
