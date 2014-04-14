@@ -47,8 +47,8 @@ fSallutation = "./content_type/sallutation.txt"
 fBOFH = "./content_type/bofhquotes.txt"
 
 def __checkMessage():
-	membercommands = botDatabase.getMemberCommandsByMemberNames(sName)
-	if membercommands and sMessage.split(' ')[0][1:] in membercommands:
+	__membercommands = botDatabase.getMemberCommandsByMemberNames(sName)
+	if __membercommands and sMessage.split(' ')[0][1:] in __membercommands:
 		return __performCommand(sMessage)
 	else:
 		if sMessage in botDatabase.getCommands():
@@ -72,7 +72,7 @@ def __performCommand(sMessage):
 	elif __aArgs[0] == ",disk" or __aArgs[0] == "!disk":
 		return(cmd.__getDiskUsage())
 	elif __aArgs[0] == ",list" or __aArgs[0] == "!list":
-		return(cmd.__listCommands)
+		return(cmd.__listCommands())
 	elif __aArgs[0] == ",hint" or __aArgs[0] == "!hint":
 		return(cmd.__hint(__aArgs[1]))
 	#elif __aArgs[0] == ",showAllTasks" or __aArgs[0] == "!showAllTasks":

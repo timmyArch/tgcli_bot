@@ -33,7 +33,7 @@ def __readTextfile(__sFileName):
 
 def __checkSallutation(__sMessage, __sFileName):
 	__lFileContent = __readTextfile(__sFileName)
-	if "hi" in __lFileContent.lower() or "huhu" in __sFileContent.lower():
+	if "hi" in __lFileContent.lower() or "huhu" in __lFileContent.lower():
 		return True
 
 def __getSallutation(__sFileName):
@@ -47,10 +47,10 @@ def __getHttpTitle ():
 	return re.search('<title>(.*)</title>',title, re.DOTALL, re.IGNORECASE).group(1)
 
 def __listCommands(__sName):
-	return (botDatabase.getMemberCommandsByMemberNames(__sName))
+	return (str(botDatabase.getMemberCommandsByMemberNames(__sName)))
 
 def __hint(__sCommand):
-	return(botDatabase.getHintHyCommand(__sCommand))
+	return (str(botDatabase.getHintHyCommand(__sCommand)))
 
 def __getDiskUsage():
 	return (str(round(psutil.disk_usage('/').percent))+"%")
