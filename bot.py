@@ -47,7 +47,8 @@ fSallutation = "sallutation.txt"
 fBOFH = "bofh.txt"
 
 def __checkMessage():
-	if sMessage.split(' ')[0][1:] in botDatabase.getMemberCommandsByMemberNames(sName):
+	membercommands = botDatabase.getMemberCommandsByMemberNames(sName)
+	if membercommands and sMessage.split(' ')[0][1:] in membercommands
 		return __performCommand(sMessage)
 	else:
 		if sMessage in botDatabase.getCommands():
