@@ -39,7 +39,7 @@ def __readTextfile(__sFileName):
 
 def __checkSallutation(__sMessage, __sFileName):
 	__lFileContent = __readTextfile(__sFileName)
-	if any(__sMessage in __sElement for __sElement in __lFileContent):
+	if any(__sMessage.lower() in __sElement.lower() for __sElement in __lFileContent):
 		return True
 
 def __getSallutation(__sFileName):
