@@ -20,6 +20,7 @@
 import psycopg2
 import sys
 import ConfigParser
+import os
 
 class BotDatabase(object):
 	
@@ -36,7 +37,7 @@ class BotDatabase(object):
 	def __readConfig(self):
 		try:
 			config = ConfigParser.RawConfigParser()
-			config.read('~/.bot.cfg')
+			config.read(os.getenv('HOME')+'/.bot.cfg')
 			BotDatabase.__database=config.get('Database','db_name')
 			BotDatabase.__password=config.get('Database','password')
 			BotDatabase.__user		=config.get('Database','user')
@@ -54,7 +55,7 @@ class BotDatabase(object):
 
 	def getAdmins(self):
 		config = ConfigParser.RawConfigParser()
-		config.read('~/.bot.cfg')
+		config.read(os.getenv('HOME')+'/.bot.cfg')
 		return config.get('Roles','admin').split(',')
 
 	def addMember(self,user):
@@ -224,7 +225,7 @@ class BotTasks(BotDatabase):
 	def __readConfig(self):
 		try:
 			config = ConfigParser.RawConfigParser()
-			config.read('~/.bot.cfg')
+			config.read(os.getenv('HOME')+'/.bot.cfg')
 			BotTasks.__fifo=config.get('Fifo','path')
 		except:
 			raise 'please check bot.cfg'
