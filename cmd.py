@@ -21,36 +21,54 @@ import re
 import psutil
 import sys
 import os
+import pycurl
+import random
 from datetime import timedelta
 from optparse import OptionParser
+from StringIO import StringIO
 from uptime import uptime
 from db import BotTasks
 botDatabase = BotTasks()
 
 def __readTextfile(__sFileName):
+	__buffer = []
 	__fTxtFile = open(__sFileName, "r")
-	return (__lFileContent)
+	for line in __fTxtFile:
+		__buffer.append(line)
+	return (__buffer)
 
 def __checkSallutation(__sMessage, __sFileName):
 	__lFileContent = __readTextfile(__sFileName)
-	if "hi" in __lFileContent.lower() or "huhu" in __lFileContent.lower():
+	if any(__sMessage in __sElement for __sElement in __lFileContent):
 		return True
 
 def __getSallutation(__sFileName):
 	return random.choice(__readTextfile(__sFileName))
 
+def __getHttpTitle(sMessage):
+	__content = __getHttpContent(sMessage)
+	return re.search('<title>(.*)</title>',__content, re.DOTALL,).group(1)
+
+def __checkHttpTitle(sMessage):
+	__matchObj = re.match("(https?:\/\/.*\S+)", sMessage)
+	if __matchObj:
+		return True
+
 def __getBOFH(__sFilename):
 	return random.choice(__readTextfile(__sFileName))
-
-def __getHttpTitle ():
-	__title = cmd.__getHttpContent(sMessage)
-	return re.search('<title>(.*)</title>',title, re.DOTALL, re.IGNORECASE).group(1)
 
 def __listCommands(__sName):
 	return (str(botDatabase.getMemberCommandsByMemberNames(__sName)))
 
-def __hint(__sCommand):
-	return (str(botDatabase.getHintHyCommand(__sCommand)))
+def __hint(__sMessage):
+	__aArgs = __sMessage.split(" ")
+	__lCommands = botDatabase.getCommands()
+	if len(__aArgs) > 1 and  __aArgs[1] != "":
+		for s in __lCommands:
+			if __aArgs[1] == s[0]:
+				return (str(botDatabase.getHintByCommand(__sMessage.split(" ")[1])))
+	else:
+		return ("Keine zulaessigen Parameter angegeben!")
 
 def __getDiskUsage():
 	return (str(round(psutil.disk_usage('/').percent))+"%")
@@ -60,16 +78,15 @@ def __getUsedMem():
 
 def __getHttpContent (sMessage):
 	__matchObj = re.match("(https?:\/\/.*\S+)", sMessage)
-	if __matchObj:
-		storage = StringIO()
-		c = pycurl.Curl()
-		c.setopt(c.URL, __matchObj.group(1))
-		c.setopt(c.WRITEFUNCTION, storage.write)
-		c.setopt(pycurl.FOLLOWLOCATION, 1)
-		c.perform()
-		c.close()
-		content = storage.getvalue()
-		return content
+	storage = StringIO()
+	c = pycurl.Curl()
+	c.setopt(c.URL, __matchObj.group(1))
+	c.setopt(c.WRITEFUNCTION, storage.write)
+	c.setopt(pycurl.FOLLOWLOCATION, 1)
+	c.perform()
+	c.close()
+	content = storage.getvalue()
+	return content
 
 def __ping(sIP):
 	__sPing = os.system("ping -c1 " + sIP)
@@ -93,10 +110,6 @@ def __getLoad():
 
 #def __delTask(TaskID):
 	
-
-#def __bofh():
-#	__htmlContent = __getHttpContent("URL")
-#	return re.search('<td bgcolor="#ffffff"><pre>(.*)</pre></td>',__htmlContent, re.DOTALL, re.IGNORECASE).group(1)
 
 #def __listMemes():
 	

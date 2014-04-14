@@ -43,8 +43,8 @@ parser.add_option("-m",
 (options, args) = parser.parse_args()
 sName = options.name
 sMessage = options.message
-fSallutation = "./content_type/sallutation.txt"
-fBOFH = "./content_type/bofhquotes.txt"
+fSallutation = "content_files/sallutation.txt"
+fBOFH = "content_files/bofhquotes.txt"
 
 def __checkMessage():
 	__membercommands = botDatabase.getMemberCommandsByMemberNames(sName)
@@ -56,7 +56,7 @@ def __checkMessage():
 		else:
 			if cmd.__checkSallutation(sMessage, fSallutation):
 				return cmd.__getSallutation(fSallutation)
-			else:
+			if cmd.__checkHttpTitle(sMessage):
 				return cmd.__getHttpTitle(sMessage)
 
 def __performCommand(sMessage):
@@ -72,9 +72,9 @@ def __performCommand(sMessage):
 	elif __aArgs[0] == ",disk" or __aArgs[0] == "!disk":
 		return(cmd.__getDiskUsage())
 	elif __aArgs[0] == ",list" or __aArgs[0] == "!list":
-		return(cmd.__listCommands())
+		return(cmd.__listCommands(sName))
 	elif __aArgs[0] == ",hint" or __aArgs[0] == "!hint":
-		return(cmd.__hint(__aArgs[1]))
+		return(cmd.__hint(sMessage))
 	#elif __aArgs[0] == ",showAllTasks" or __aArgs[0] == "!showAllTasks":
 	#	return(cmd.__showAllTasks())
 	#elif __aArgs[0] == ",showTasks" or __aArgs[0] == "!showTasks":
