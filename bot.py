@@ -83,8 +83,8 @@ def __performCommand(sMessage):
 	#	return(cmd.__addTasks())
 	#elif __aArgs[0] == ",delTask" or __aArgs[0] == "!delTask":
 	#	return(cmd.__delTasks(__aArgs[1]))
-	#elif __aArgs[0] == ",bofh" or __aArgs[0] == "!bofh":
-	#	return(cmd.__bofh(fBOFH))
+	elif __aArgs[0] == ",bofh" or __aArgs[0] == "!bofh":
+		return(cmd.__getBOFH(fBOFH))
 	#elif __aArgs[0] == ",listMemes" or __aArgs[0] == "!listMemes":
 	#	return(cmd.__listMemes())
 	##elif __aArgs[0] == ",meme" or __aArgs[0] == "!meme":

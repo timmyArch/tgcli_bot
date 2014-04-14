@@ -55,7 +55,7 @@ def __checkHttpTitle(sMessage):
 		return True
 
 def __getBOFH(__sFilename):
-	return random.choice(__readTextfile(__sFileName))
+	return random.choice(__readTextfile(__sFilename))
 
 def __listCommands(__sName):
 	return (str(botDatabase.getMemberCommandsByMemberNames(__sName)))
