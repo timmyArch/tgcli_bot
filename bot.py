@@ -43,8 +43,8 @@ parser.add_option("-m",
 (options, args) = parser.parse_args()
 sName = options.name
 sMessage = options.message
-fSallutation = "sallutation.txt"
-fBOFH = "bofh.txt"
+fSallutation = "./content_type/sallutation.txt"
+fBOFH = "./content_type/bofhquotes.txt"
 
 def __checkMessage():
 	membercommands = botDatabase.getMemberCommandsByMemberNames(sName)
