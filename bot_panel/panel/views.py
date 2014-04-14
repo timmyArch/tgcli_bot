@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.shortcuts import *
 from django.contrib import messages
 from django.views.generic import TemplateView
@@ -108,9 +110,18 @@ class User():
 			else:
 				messages.add_message(request, messages.ERROR, 'Es konnte ein Benutzer gefunden werden.')
 				return redirect('/users/list')
+			allCommands=list()
 			commands = a.getMemberCommandsByMemberId(user_id)
+			buf=list(a.getCommands())
+			if commands:
+				for i, command in enumerate(buf):
+					if command and not command[0] in commands:
+						allCommands.append(command[0])
+			else:
+				allCommands=buf
 			return render_to_response("user.html", 
-				dict(commands=commands,info=True,username=user[2],number=user[1]), context_instance=RequestContext(request))	
+				dict(commands=commands,allCommands=allCommands,info=True,user_id=user_id,username=user[2],number=user[1]), 
+					context_instance=RequestContext(request))	
 		return redirect('/auth/login')
 
 	def remove(self,request,user_id):
@@ -147,6 +158,22 @@ class User():
 				y.append(x[0])
 			return render_to_response("user.html", 
 				dict(commands=y), context_instance=RequestContext(request))	
+		return redirect('/auth/login')
+	
+	def addCommand(self,request,user_id,command):
+		if 'verified' in request.session and request.session['verified'] and request.session['is_admin']:
+			a = BotTasks()
+			msg = 'Das Kommando wurde '+('nicht ','')[a.addMemberCommandByMemberId(user_id,command)]+'hinzugefuegt'
+			messages.add_message(request, messages.INFO, msg)
+			return redirect('/users/'+str(user_id))
+		return redirect('/auth/login')
+			
+	def delCommand(self,request,user_id,command):
+		if 'verified' in request.session and request.session['verified'] and request.session['is_admin']:
+			a = BotTasks()
+			msg = 'Das Kommando wurde '+('nicht ','')[a.removeMemberCommandByCommand(user_id,command)]+'entfernt'
+			messages.add_message(request, messages.INFO, msg)
+			return redirect('/users/'+str(user_id))
 		return redirect('/auth/login')
 
 class Auth():

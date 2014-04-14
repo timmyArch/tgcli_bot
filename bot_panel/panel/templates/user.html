@@ -3,6 +3,18 @@
 {% load bootstrap3 %}
 
 {% block content %}
+	<script>
+		function delCommand() {
+			var e = document.getElementById("user_commands");
+			var b = e.options[e.selectedIndex].value;
+			window.location.href = "/users/{{user_id}}/del/"+b
+		}
+		function addCommand() {
+			var e = document.getElementById("all_commands");
+			var b = e.options[e.selectedIndex].value;
+			window.location.href = "/users/{{user_id}}/add/"+b
+		}
+	</script>
 	<form class="form-horizontal" method="POST" action="/users/add" role="form">
 	{% csrf_token %}
 	{% if not info %}
@@ -20,7 +32,7 @@
   </div>
   <div class="form-group">
     <label for="exec_command" class="col-sm-2 control-label">Kommandos</label>
-    <div class="col-sm-10">
+    <div class="col-sm-4">
 			<select class="form-control" multiple name="exec_command" size="3">
 			{% if commands %}
 				{% for command in commands %}
@@ -47,14 +59,27 @@
   </div>
   <div class="form-group">
     <label for="exec_command" class="col-sm-2 control-label">Kommandos</label>
-    <div class="col-sm-10">
-			<select class="form-control" name="exec_command" size="3">
+    <div class="col-sm-4">
+			<select class="form-control" id="user_commands" size="3">
 			{% if commands %}
 				{% for command in commands %}
 					<option>{{ command }}</option>
 				{% endfor %}
 			{% endif %}
 			</select>
+    </div>
+    <div class="col-sm-2">
+      <a class="btn btn-default btn-block btn-sm" onclick="addCommand()">Hinzufuegen</a>
+      <a class="btn btn-default btn-block btn-sm" onclick="delCommand()">Entfernen</a>
+    </div>
+    <div class="col-sm-4">
+      <select class="form-control" id="all_commands" size="3">
+      {% if allCommands %}
+        {% for command in allCommands %}
+          <option>{{ command }}</option>
+        {% endfor %}
+      {% endif %}
+      </select>
     </div>
   </div>
 	{% endif %}

@@ -83,6 +83,12 @@ class BotDatabase(object):
 		return self._insert_del("INSERT INTO members_commands (members_id, commands_id) VALUES ( %s , %s )", 
 			(user_id, command))
 
+	def removeMemberCommandByCommand(self, user_id, command):
+		a = self._insert_del("DELETE FROM members_commands WHERE "+
+			"commands_id = (SELECT commands_id FROM commands WHERE command = %s LIMIT 1)"+
+			" and members_id = %s", (command, user_id)) 
+		return (False, True)[bool(a)]
+	
 	def addMemberCommandByMemberName(self, user_name, command):
 		user_id = self._select("SELECT members_id FROM members " +
 			"WHERE name = %s LIMIT 1" , (user_name,), True)
