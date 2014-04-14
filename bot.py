@@ -21,6 +21,7 @@ import cmd
 import random
 import re
 import pycurl
+import os,sys
 from StringIO import StringIO
 from optparse import OptionParser
 from db import BotTasks
@@ -43,8 +44,9 @@ parser.add_option("-m",
 (options, args) = parser.parse_args()
 sName = options.name
 sMessage = options.message
-fSallutation = "content_files/sallutation.txt"
-fBOFH = "content_files/bofhquotes.txt"
+__path=os.path.dirname(os.path.realpath(sys.argv[0]))
+fSallutation = __path+"/content_files/sallutation.txt"
+fBOFH = __path+"/content_files/bofhquotes.txt"
 
 def __checkMessage():
 	__membercommands = botDatabase.getMemberCommandsByMemberNames(sName)
