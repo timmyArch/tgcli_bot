@@ -1,41 +1,50 @@
-import ConfigParser
-import os
+#!/usr/bin/env python2
+"""
+
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+                    Version 2, December 2004
+
+ Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+
+ Everyone is permitted to copy and distribute verbatim or modified
+ copies of this license document, and changing it is allowed as long
+ as the name is changed.
+
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+  0. You just DO WHAT THE FUCK YOU WANT TO.
+
+"""
+
+import cmd
 import random
 import re
-import psutil
-import sys
-import os
 import pycurl
 from StringIO import StringIO
-from datetime import timedelta
 from optparse import OptionParser
-from uptime import uptime
 from db import BotTasks
 
-
 #variable declaration
-lSallutations = ['Hy', 'Ahoi', 'Huhu', 'Hiho', 'Moin', 'Nabend',
-                 'Hallo', 'Hi', 'Halli, Hallo, Halloechen.',
-                 'Na?', 'Na, wie gehts?', 'Na du?', 'Salut.',
-                 'Tach', 'Gruesse', 'Ach herrjieei', 'Sei gegruesst',
-                 'Servus', 'Tag.']
 botDatabase = BotTasks()
 parser = OptionParser(usage = "usage: %prog [options] arg1 arg2")
 parser.add_option("-n",
-		  "--name",
-		  dest="name",
-		  type="string",
-		  default=False,
-		  help="name of the sender")
+									"--name",
+									dest="name",
+									type="string",
+									default=False,
+									help="name of the sender")
 parser.add_option("-m",
-		  "--message",
-		  dest="message",
-		  type="string",
-		  default=False,
-		  help="message from telegram")
+									"--message",
+									dest="message",
+									type="string",
+									default=False,
+									help="message from telegram")
 (options, args) = parser.parse_args()
 sName = options.name
 sMessage = options.message
+fSallutation = "sallutation.txt"
+fBOFH = "bofh.txt"
 
 def __checkMessage():
 	if sMessage.split(' ')[0][1:] in botDatabase.getMemberCommandsByMemberNames(sName):
@@ -44,63 +53,41 @@ def __checkMessage():
 		if sMessage in botDatabase.getCommands():
 			return "Permission denied!"
 		else:
-			if __checkSallutation(sMessage):
-				return __getSallutation()
-			elif __checkURL(sMessage):
-				return __getHttpTitle(sMessage)
+			if cmd.__checkSallutation(sMessage, fSallutation):
+				return cmd.__getSallutation(fSallutation)
+			else:
+				return cmd.__getHttpTitle(sMessage)
 
 def __performCommand(sMessage):
 	__aArgs = sMessage.split(" ")
-	if __aArgs[0] == ",ping":
-		return(__ping(__aArgs[1]))
-	elif __aArgs[0] == ",uptime":
-		return(__getUptime())
-	elif __aArgs[0] == ",load":
-		return(__getLoad())
-	elif __aArgs[0] == ",mem":
-		return(__getUsedMem())
-	elif __aArgs[0] == ",disk":
-		return(__getDiskUsage())
-
-def __checkSallutation(sLocalMessage):
-	if "hi" in sLocalMessage.lower() or "huhu" in sLocalMessage.lower():
-		return True
-
-def __checkURL(sMessage):
-		__matchObj = re.match("(https?:\/\/.*\S+)", sMessage)
-		if __matchObj:
-			return True
-
-def __getSallutation():
-        return random.choice(lSallutations)
-
-def __getDiskUsage():
-	return (str(round(psutil.disk_usage('/').percent))+"%")
-
-def __getUsedMem():
-	return str((psutil.used_phymem() / 1024**2))+" MB used ..."
-
-def __getHttpTitle (url):
-	storage = StringIO()
-	c = pycurl.Curl()
-	c.setopt(c.URL, url)
-	c.setopt(c.WRITEFUNCTION, storage.write)
-	c.setopt(pycurl.FOLLOWLOCATION, 1)
-	c.perform()
-	c.close()
-	content = storage.getvalue()
-	return re.search('<title>(.*)</title>',content, re.DOTALL).group(1)
-
-def __ping(sIP):
-	__sPing = os.system("ping -c1 " + sIP)
-	return (sIP+" is down",sIP+" is up")[bool(__sPing == 0)]
-
-def __getUptime():
-	__sSeconds = uptime()
-	return str(timedelta(seconds=__sSeconds))
-
-def __getLoad():
-	return (os.getloadavg())		
+	if __aArgs[0] == ",ping" or __aArgs[0] == "!ping":
+		return(cmd.__ping(__aArgs[1]))
+	elif __aArgs[0] == ",uptime" or __aArgs[0] == "!uptime":
+		return(cmd.__getUptime())
+	elif __aArgs[0] == ",load" or __aArgs[0] == "!load":
+		return(cmd.__getLoad())
+	elif __aArgs[0] == ",mem" or __aArgs[0] == "!mem":
+		return(cmd.__getUsedMem())
+	elif __aArgs[0] == ",disk" or __aArgs[0] == "!disk":
+		return(cmd.__getDiskUsage())
+	elif __aArgs[0] == ",list" or __aArgs[0] == "!list":
+		return(cmd.__listCommands)
+	elif __aArgs[0] == ",hint" or __aArgs[0] == "!hint":
+		return(cmd.__hint(__aArgs[1]))
+	#elif __aArgs[0] == ",showAllTasks" or __aArgs[0] == "!showAllTasks":
+	#	return(cmd.__showAllTasks())
+	#elif __aArgs[0] == ",showTasks" or __aArgs[0] == "!showTasks":
+	#	return(cmd.__showTasks())
+	#elif __aArgs[0] == ",addTask" or __aArgs[0] == "!addTask":
+	#	return(cmd.__addTasks())
+	#elif __aArgs[0] == ",delTask" or __aArgs[0] == "!delTask":
+	#	return(cmd.__delTasks(__aArgs[1]))
+	#elif __aArgs[0] == ",bofh" or __aArgs[0] == "!bofh":
+	#	return(cmd.__bofh(fBOFH))
+	#elif __aArgs[0] == ",listMemes" or __aArgs[0] == "!listMemes":
+	#	return(cmd.__listMemes())
+	##elif __aArgs[0] == ",meme" or __aArgs[0] == "!meme":
+	#	return(cmd.__meme(__aArgs[1]))
 
 a=__checkMessage()
 if a and not a == "":
