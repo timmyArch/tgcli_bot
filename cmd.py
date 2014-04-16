@@ -58,7 +58,7 @@ def __getBOFH(__sFilename):
 	return random.choice(__readTextfile(__sFilename))
 
 def __listCommands(__sName):
-	return (str(botDatabase.getMemberCommandsByMemberNames(__sName)))
+	return (' ; '.join(botDatabase.getMemberCommandsByMemberNames(__sName)))
 
 def __hint(__sMessage):
 	__aArgs = __sMessage.split(" ")
