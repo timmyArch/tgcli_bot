@@ -49,12 +49,16 @@ def __getSallutation(__sFileName):
 	return random.choice(__readTextfile(__sFileName))
 
 def __getHttpTitle(sMessage):
-	__content = __getHttpContent(sMessage)
-	return re.search('<title>(.*)</title>',__content, re.DOTALL,).group(1)
+	__tContent = __getHttpContent(sMessage)
+	__sResult = ""
+	for __sElement in __tContent:
+		__sResult += re.search('<title>(.*)</title>',__sElement, re.DOTALL,).group(1) + "\n"
+		__sResult += "--------------------\n"
+	return (__sResult[:-21])
 
 def __checkURL(sMessage):
-	__matchObj = re.match("(https?:\/\/.*\S+)", sMessage)
-	if __matchObj:
+	__tMatchObj = re.findall("(https?://\S+)", sMessage, re.DOTALL)
+	if __tMatchObj:
 		return True
 
 def __getBOFH(__sFilename):
@@ -80,16 +84,18 @@ def __getUsedMem():
 	return str((psutil.used_phymem() / 1024**2))+" MB used ..."
 
 def __getHttpContent (sMessage):
-	__matchObj = re.match("(https?:\/\/.*\S+)", sMessage)
-	storage = StringIO()
-	c = pycurl.Curl()
-	c.setopt(c.URL, __matchObj.group(1))
-	c.setopt(c.WRITEFUNCTION, storage.write)
-	c.setopt(pycurl.FOLLOWLOCATION, 1)
-	c.perform()
-	c.close()
-	content = storage.getvalue()
-	return content
+	__tMatchObj = re.findall("(https?://\S+)", sMessage)
+	__tContent =[]
+	for __sElement in __tMatchObj:
+		storage = StringIO()
+		c = pycurl.Curl()
+		c.setopt(c.URL, __sElement)
+		c.setopt(c.WRITEFUNCTION, storage.write)
+		c.setopt(pycurl.FOLLOWLOCATION, 1)
+		c.perform()
+		c.close()
+		__tContent.append(storage.getvalue())
+	return (__tContent)
 
 def __ping(__sIP):
 	__sPing = os.system("ping -c1 " + __sIP + " > /dev/null")
@@ -112,9 +118,6 @@ def __getUserID(__sUser):
 	for __part in __tMembers:
 		if __sUser in __part:
 			return (str(__tMembers).split(",")[0][1:0])
-
-#def __showAllTasks():
-	
 
 #def __showTasks(__sName):
 	
