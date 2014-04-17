@@ -9,8 +9,9 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
+import os,sys,locale
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -26,6 +27,9 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+reload(sys)
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+sys.setdefaultencoding('utf-8')
 
 # Application definition
 TEMPLATE_CONTEXT_PROCESSORS = (

@@ -35,15 +35,13 @@ class BotDatabase(object):
 		self._connect()
 			
 	def __readConfig(self):
-		try:
-			config = ConfigParser.RawConfigParser()
-			config.read(os.getenv('HOME')+'/.bot.cfg')
-			BotDatabase.__database=config.get('Database','db_name')
-			BotDatabase.__password=config.get('Database','password')
-			BotDatabase.__user		=config.get('Database','user')
-			BotDatabase.__host		=config.get('Database','host')
-		except:
-			raise 'please check bot.cfg'
+		config = ConfigParser.RawConfigParser()
+		config.read('/var/www/bot.cfg')
+		BotDatabase.__database=config.get('Database','db_name')
+		BotDatabase.__password=config.get('Database','password')
+		BotDatabase.__user		=config.get('Database','user')
+		BotDatabase.__host		=config.get('Database','host')
+		
 
 	def _connect(self):
 		if not BotDatabase.__con:
@@ -55,7 +53,7 @@ class BotDatabase(object):
 
 	def getAdmins(self):
 		config = ConfigParser.RawConfigParser()
-		config.read(os.getenv('HOME')+'/.bot.cfg')
+		config.read('/var/www/bot.cfg')
 		return config.get('Roles','admin').split(',')
 
 	def addMember(self,user):
@@ -225,7 +223,7 @@ class BotTasks(BotDatabase):
 	def __readConfig(self):
 		try:
 			config = ConfigParser.RawConfigParser()
-			config.read(os.getenv('HOME')+'/.bot.cfg')
+			config.read('/var/www/bot.cfg')
 			BotTasks.__fifo=config.get('Fifo','path')
 		except:
 			raise 'please check bot.cfg'
@@ -254,11 +252,15 @@ class BotTasks(BotDatabase):
 				queryTuple=((i[0],),(i[4],i[0]))[bool(i[3])]
 				BotTasks.__instance._insert_del("UPDATE tasks SET last_exec = now()"+execTime+
 					" WHERE tasks_id = %s", queryTuple)
-				if re.search('user_msg:\s\S+\s.*', i[2]):
-					result = os.popen(str(i[2])).read()
+				regex = re.search('user_msg:\s?{{(\S+)}}\s?(.*)', i[2])
+				if regex: 
+					user = regex.group(1)
+					result = os.popen(str(regex.group(2))).read()
 				else:
+					user = i[1]
 					result = os.popen("python bot.py -n "+str(i[1])+" -m '"+str(i[2])+"'").read()
-				execCommands.append(i[1]+','+result+'\n')
+				if not result == "":
+					execCommands.append(user+','+result+'\n')
 
 		a = BotTasks.__instance._select("SELECT tasks_id,name,exec_command,"+
 			" 	exec_period,exec_second FROM tasks "+
@@ -270,11 +272,15 @@ class BotTasks(BotDatabase):
 				queryTuple=((i[0],),(i[4],i[0]))[bool(i[3])]
 				BotTasks.__instance._insert_del("UPDATE tasks SET last_exec = now()"+execTime+
 					" WHERE tasks_id = %s",queryTuple)
-				if re.search('user_msg:\s\S+\s.*', i[2]):
-					result = os.popen(str(i[2])).read()
+				regex =re.search('user_msg:\s?{{(\S+)}}\s?(.*)', i[2])
+				if regex: 
+					user = regex.group(1)
+					result = os.popen(str(regex.group(2))).read()
 				else:
+					user = i[1]
 					result = os.popen("python bot.py -n "+i[1]+" -m '"+i[2]+"'").read()	
-				execCommands.append(i[1]+','+result+'\n')
+				if not result == "":
+					execCommands.append(user+','+result+'\n')
 		
 		for i in execCommands:
 			fp.write(i)	

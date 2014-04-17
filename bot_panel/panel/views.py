@@ -6,10 +6,10 @@ from django.views.generic import TemplateView
 from django.template.context import RequestContext
 from django.contrib import messages
 
-import sys
+import sys,locale
 
-sys.path.append('/root/tgcli_bot/')
-sys.path.append('/root/tgcli_bot/bot_panel/panel/templates/')
+sys.path.append('/var/www/tgcli_bot/')
+sys.path.append('/var/www/tgcli_bot/bot_panel/panel/templates/')
 
 from db import BotDatabase
 from db import BotTasks
@@ -17,6 +17,8 @@ from db import BotTasks
 import string
 import random
 
+
+ 
 class Tasks():
 	
 	def list(self, request):
@@ -37,18 +39,21 @@ class Tasks():
 		if 'verified' in request.session and request.session['verified']:
 			a = BotTasks()
 			if request.method == 'POST':
-				if request.POST['exec_command'] in a.getMemberCommandsByMemberId(request.session['user_id']):
-					if request.POST['exec_time'] != '':
-						timer = request.POST['exec_time']
-					elif request.POST['exec_second'] != '':
-						timer = request.POST['exec_second']
+				if request.POST['exec_command'] in a.getMemberCommandsByMemberId(
+						request.session['user_id']) or (request.POST['exec_command'] == 'user_msg' and request.POST['user']):
+					if request.POST['time'] != '':
+						timer = request.POST['time']
 					else:
 						return redirect('/tasks/add')
-					a.addTimer(
+					if request.POST['exec_command'] == 'user_msg':
+						command = "user_msg: {{"+request.POST['user']+"}}  echo -n '"+request.POST['exec_params']+"'"
+					else:
+						command = ","+request.POST['exec_command']+" "+request.POST['exec_params'],
+					a.addTask(
 						request.session['user_id'],
-						request.POST['exec_command']+" "+request.POST['exec_params'],
+						command,
 						timer,
-						(False,True)[bool(request.POST['exec_period'])]
+						(False,True)[bool('exec_period' in request.POST)]
 					)
 					return render_to_response("tasks.html", dict(task_added=True), context_instance=RequestContext(request))	
 				else:
@@ -56,7 +61,12 @@ class Tasks():
 			commands = a.getMemberCommandsByMemberId(request.session['user_id'])
 			if not commands:
 				messages.add_message(request, messages.INFO, 'Es stehen noch keine Kommandos bereit.')
-			return render_to_response("task.html", dict(commands=commands), context_instance=RequestContext(request))	
+			messages.add_message(request, messages.INFO, 'Bitte beachten bei der Angabe der Ausfuehrungszeit: <br/>'+
+				'<br/> "1.1.2014 10:30" -> Angabe von Datum und Uhrzeit. '+
+				'<br/> "10:30" -> Einfache Angabe der Uhrzeit. Datum = Heutiges Datum'+
+				'<br/> "1000" -> Wird 1000 Sekunden nach der aktuellen Zeitpunkt ausgefuehrt.')
+			return render_to_response("task.html", dict(commands=commands,users=a.getMembers()), 
+				context_instance=RequestContext(request))	
 		return redirect('/auth/login')
 	
 class Commands():
