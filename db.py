@@ -243,8 +243,41 @@ class BotTasks(BotDatabase):
 		return False
 	
 	def taskScheduler(self):	
-		BotTasks.__instance._select("SELECT command_exec FROM tasks "+
-			"WHERE (exec_period = true and exec_second)" )	
+		execCommands=list()
+		fp = open(BotTasks.__fifo,'a+')
+		a = BotTasks.__instance._select("SELECT tasks_id,name,exec_command,exec_period,exec_time FROM tasks "+
+			" JOIN members USING(members_id)"+
+			" WHERE exec_second is null and exec_time < now()",False,False)	
+		if a:
+			for i in a:
+				execTime=(" ",", exec_time = (%s::timestamptz+'1 day'::interval)")[bool(i[3])]
+				queryTuple=((i[0],),(i[4],i[0]))[bool(i[3])]
+				BotTasks.__instance._insert_del("UPDATE tasks SET last_exec = now()"+execTime+
+					" WHERE tasks_id = %s", queryTuple)
+				if re.search('user_msg:\s\S+\s.*', i[2]):
+					result = os.popen(str(i[2])).read()
+				else:
+					result = os.popen("python bot.py -n "+str(i[1])+" -m '"+str(i[2])+"'").read()
+				execCommands.append(i[1]+','+result+'\n')
+
+		a = BotTasks.__instance._select("SELECT tasks_id,name,exec_command,"+
+			" 	exec_period,exec_second FROM tasks "+
+			" JOIN members USING(members_id)"+
+			" WHERE exec_second::text::interval+exec_time < now()",False,False)	
+		if a:
+			for i in a:
+				execTime=(" ",", exec_time = (now()+%s::text::interval)")[bool(i[3])]
+				queryTuple=((i[0],),(i[4],i[0]))[bool(i[3])]
+				BotTasks.__instance._insert_del("UPDATE tasks SET last_exec = now()"+execTime+
+					" WHERE tasks_id = %s",queryTuple)
+				if re.search('user_msg:\s\S+\s.*', i[2]):
+					result = os.popen(str(i[2])).read()
+				else:
+					result = os.popen("python bot.py -n "+i[1]+" -m '"+i[2]+"'").read()	
+				execCommands.append(i[1]+','+result+'\n')
+		
+		for i in execCommands:
+			fp.write(i)	
 	
 	def getTaskById(self, task_id):
 		return BotTasks.__instance._select("SELECT * FROM tasks WHERE tasks_id = %s", (task_id,), False)
@@ -252,7 +285,7 @@ class BotTasks(BotDatabase):
 	def delTask(self,task_id):
 		return BotTasks.__instance._insert_del("DELETE FROM tasks WHERE tasks_id = %s", (task_id,))
 
-	def addTimer(self, member_id ,exec_command , timer, period=True):
+	def addTask(self, member_id ,exec_command , timer, period=True):
 		if self.__prepareTime(timer):
 			a , b = self.__prepareTime(timer)
 			if b == 0:
