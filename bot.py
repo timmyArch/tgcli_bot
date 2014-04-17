@@ -44,7 +44,7 @@ parser.add_option("-m",
 parser.add_option("-t",
 									"--task",
 									action="store_true",
-									dest="task"
+									dest="task",
 									help="starts just the taskscheduler")
 (options, args) = parser.parse_args()
 sName = options.name
