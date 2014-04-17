@@ -58,7 +58,7 @@ def __checkMessage():
 		else:
 			if cmd.__checkSallutation(sMessage, fSallutation):
 				return cmd.__getSallutation(fSallutation)
-			if cmd.__checkHttpTitle(sMessage):
+			if cmd.__checkURL(sMessage):
 				return cmd.__getHttpTitle(sMessage)
 
 def __performCommand(sMessage):

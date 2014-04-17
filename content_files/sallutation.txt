@@ -15,4 +15,5 @@ Tach
 Gruesse
 Ach herrjieei
 Sei gegruesst
-Servus', 'Tag.
+Servus.
+Tag.

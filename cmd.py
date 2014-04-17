@@ -17,6 +17,8 @@
 
 """
 
+import iptools
+import itertools
 import re
 import psutil
 import sys
@@ -39,8 +41,9 @@ def __readTextfile(__sFileName):
 
 def __checkSallutation(__sMessage, __sFileName):
 	__lFileContent = __readTextfile(__sFileName)
-	if any(__sMessage.lower() in __sElement.lower() for __sElement in __lFileContent):
-		return True
+	for __sElement in __lFileContent:
+		if __sMessage.lower() == __sElement.lower()[:-1]:
+			return True
 
 def __getSallutation(__sFileName):
 	return random.choice(__readTextfile(__sFileName))
@@ -49,7 +52,7 @@ def __getHttpTitle(sMessage):
 	__content = __getHttpContent(sMessage)
 	return re.search('<title>(.*)</title>',__content, re.DOTALL,).group(1)
 
-def __checkHttpTitle(sMessage):
+def __checkURL(sMessage):
 	__matchObj = re.match("(https?:\/\/.*\S+)", sMessage)
 	if __matchObj:
 		return True
@@ -88,9 +91,14 @@ def __getHttpContent (sMessage):
 	content = storage.getvalue()
 	return content
 
-def __ping(sIP):
-	__sPing = os.system("ping -c1 " + sIP)
-	return (sIP+" is down",sIP+" is up")[bool(__sPing == 0)]
+def __ping(__sIP):
+	__sPing = os.system("ping -c1 " + __sIP + " > /dev/null")
+	if __sPing == 0:
+		return (__sIP + " is up")
+	if __sPing == 1 or __sPing == 256:
+		return (__sIP + " is down")
+	if __sPing == 2:
+		return ("")
 
 def __getUptime():
 	__sSeconds = uptime()
@@ -98,6 +106,12 @@ def __getUptime():
 
 def __getLoad():
 	return (os.getloadavg())
+
+def __getUserID(__sUser):
+	__tMembers = botDatabase.getMembers()
+	for __part in __tMembers:
+		if __sUser in __part:
+			return (str(__tMembers).split(",")[0][1:0])
 
 #def __showAllTasks():
 	
