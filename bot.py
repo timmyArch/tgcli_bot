@@ -41,9 +41,15 @@ parser.add_option("-m",
 									type="string",
 									default=False,
 									help="message from telegram")
+parser.add_option("-t",
+									"--task",
+									action="store_true",
+									dest="task",
+									help="starts just the taskscheduler")
 (options, args) = parser.parse_args()
 sName = options.name
 sMessage = options.message
+bTasks = options.task
 __path=os.path.dirname(os.path.realpath(sys.argv[0]))
 fSallutation = __path+"/content_files/sallutation.txt"
 fBOFH = __path+"/content_files/bofhquotes.txt"
@@ -58,7 +64,7 @@ def __checkMessage():
 		else:
 			if cmd.__checkSallutation(sMessage, fSallutation):
 				return cmd.__getSallutation(fSallutation)
-			if cmd.__checkHttpTitle(sMessage):
+			if cmd.__checkURL(sMessage):
 				return cmd.__getHttpTitle(sMessage)
 
 def __performCommand(sMessage):
@@ -92,6 +98,9 @@ def __performCommand(sMessage):
 	##elif __aArgs[0] == ",meme" or __aArgs[0] == "!meme":
 	#	return(cmd.__meme(__aArgs[1]))
 
-a=__checkMessage()
-if a and not a == "":
-	print(a)
+if bTasks:
+	botDatabase.taskScheduler()
+else:
+	a=__checkMessage()
+	if a and not a == "":
+		print(a)
