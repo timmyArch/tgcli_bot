@@ -3,7 +3,20 @@
 {% load bootstrap3 %}
 
 {% block content %}
-	<form class="form-horizontal" action="/tasks/add" role="form">
+	<script>
+		function showUsers() {
+			var e = document.getElementById("exec_command");
+			var b = e.options[e.selectedIndex].value;
+			if (b == 'user_msg') {
+				document.getElementById('user_container').style.display="block";
+				document.getElementById('params').className="col-md-4" }
+			else {
+				document.getElementById('user_container').style.display="none";
+				document.getElementById('params').className="col-md-8"; }
+		}
+	</script>
+	<form method="POST" class="form-horizontal" action="/tasks/add" role="form">
+	{% csrf_token %}
 	{% if info %}
   <div class="form-group">
     <label for="exec_command" class="col-sm-2 control-label">Kommando</label>
@@ -14,16 +27,27 @@
 	{% else %}
   <div class="form-group">
     <label for="exec_command" class="col-sm-2 control-label">Kommando</label>
-    <div class="col-sm-4">
-			<select class="form-control" name="exec_command">
+    <div class="col-sm-2">
+			<select class="form-control" onchange="showUsers()" 
+				name="exec_command" id="exec_command">
 			{% if commands %}
 				{% for command in commands %}
 					<option>{{ command }}</option>
 				{% endfor %}
+					<option value="user_msg">Nachricht an</option>
 			{% endif %}
 			</select>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-4" id="user_container" style="display:none">
+			<select class="form-control" name="user" id="user">
+			{% if users %}
+				{% for user in users %}
+					<option>{{ user.2 }}</option>
+				{% endfor %}
+			{% endif %}
+			</select>
+    </div>
+    <div class="col-sm-8" id="params">
       <input type="text" class="form-control" id="exec_params" name="exec_params" 
 				placeholder="ggf. Parameter fuer den Command">
     </div>
@@ -32,22 +56,21 @@
   <div class="form-group">
     <label for="exec_time" class="col-sm-2 control-label">Ausfuehrung nach Uhrzeit</label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" id="exec_time" name="exec_time" 
-				placeholder="Sample: '10.1.2014 10:30' or '10:30'">
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="exec_second" class="col-sm-2 control-label">Ausfuehrung nach Dauer (sec)</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="exec_second" name="exec_second" 
-				placeholder="Sample: '900' ">
+      <input type="text" class="form-control" id="exec_time" name="time" 
+				placeholder="'10.1.2014 11:30'"
+				{% if info %}
+					value="{{task.0.3}}"
+				{% endif %} >
     </div>
   </div>
 	<div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
 			<div class="checkbox">
 				<label>
-					<input type="checkbox" name="exec_period"> Periodisch?
+					<input type="checkbox" name="exec_period"
+					{% if info and task and task.0 and task.0.5 %}
+						checked
+					{% endif %} > Periodisch?
 				</label>
 			</div>
     </div>

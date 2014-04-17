@@ -1,14 +1,10 @@
 {% load bootstrap3 %}
 
-{# Load CSS and JavaScript #}
-
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-
-
-{# Display a form #}
 <head>
 	<title>TelpyBot</title>
+	<link href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/darkly/bootstrap.min.css" rel="stylesheet">
+  
+	{% bootstrap_javascript %}
 </head>
 <body>
 	<nav class="navbar navbar-default" role="navigation">
@@ -20,7 +16,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand"> TelpyBot </a>
+				<a href="/" class="navbar-brand"> TelpyBot </a>
 			</div>
 
 			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">

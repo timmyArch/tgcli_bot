@@ -18,7 +18,7 @@ function on_msg_receive (msg)
 		if sender == "TimmyServer" then
 			return
 		end         
-		local value = io.popen("python /root/tgcli_bot/bot.py -n " .. sender .. " -m '".. message.."'" )
+		local value = io.popen("python /var/www/tgcli_bot/bot.py -n " .. sender .. " -m '".. message.."'" )
 		local result = value:read("*a")
 		value:close()
 		if not (result == nil or result == "" ) then
@@ -31,6 +31,9 @@ function on_second_scheduler_end ()
 	local file = io.popen('FILE=/tmp/luabot.tmp; head -n1 $FILE && sed -i "1d" $FILE')
 	local output = file:read('*all')
 	repicent, message = output:match("([^,]+),([^,]+)")
+	if repicent == "" or message == "" then
+		return
+	end
 	send_msg (repicent,message)
 	file:close()
 end
