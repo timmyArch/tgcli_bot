@@ -304,8 +304,8 @@ class BotTasks(BotDatabase):
 					" VALUES (%s,%s,%s::timestamptz,%s)", (member_id,exec_command, a, period))
 			elif b == 2:
 				return BotTasks.__instance._insert_del("INSERT INTO tasks (members_id,exec_command, "+
-					" exec_second,exec_period, exec_time) "+
-					" VALUES (%s,%s,%s,%s,now())", (member_id,exec_command, a, period))
+					" exec_second,exec_period, exec_time, last_exec) "+
+					" VALUES (%s,%s,%s,%s,now(),now())", (member_id,exec_command, a, period))
 		return False
 				
 
