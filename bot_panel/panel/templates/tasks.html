@@ -20,7 +20,8 @@
 					<tr>
 						<td><a href="/tasks/{{ task.0 }}">{{ task.0 }}</a></td>
 						<td>{{ task.2 }}</td>
-						<td>{{ task.5 }}</td>
+						<td>{% if task.6 %} Ja {% else %} Nein {% endif %}</td>
+						<td><a href="/tasks/{{ task.0 }}/del">Loeschen?!</a></td>
 					</tr>
 				{% endfor %}
 			{% else %}

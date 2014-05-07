@@ -55,9 +55,9 @@ class Tasks():
 						timer,
 						(False,True)[bool('exec_period' in request.POST)]
 					)
-					return render_to_response("tasks.html", dict(task_added=True), context_instance=RequestContext(request))	
-				else:
-					return redirect('/tasks/list')
+					#return render_to_response("tasks.html", dict(task_added=True), context_instance=RequestContext(request))	
+				#else:
+				return redirect('/tasks/list')
 			commands = a.getMemberCommandsByMemberId(request.session['user_id'])
 			if not commands:
 				messages.add_message(request, messages.INFO, 'Es stehen noch keine Kommandos bereit.')
@@ -68,6 +68,16 @@ class Tasks():
 			return render_to_response("task.html", dict(commands=commands,users=a.getMembers()), 
 				context_instance=RequestContext(request))	
 		return redirect('/auth/login')
+	
+	def remove(self,request,task_id):
+		if 'verified' in request.session and request.session['verified']:
+			a = BotTasks()
+			user = a.delTask(str(task_id))
+			if user: 
+				messages.add_message(request, messages.SUCCESS, 'Der Task wurde entfernt.')
+			else:
+				messages.add_message(request, messages.SUCCESS, 'Der Task wurde nicht entfernt.')
+		return redirect('/tasks/list')
 	
 class Commands():
 

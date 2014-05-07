@@ -125,12 +125,13 @@ class BotDatabase(object):
 		return (False , buf[0])[bool(buf[0])]
 
 	def getTasksByMemberId(self,user_id):
-		return self._select("SELECT * FROM tasks WHERE members_id = %s ", (user_id,), False)
+		return self._select("SELECT * FROM tasks WHERE members_id = %s "+
+			"ORDER BY exec_time", (user_id,), False)
 
 	def getTasksByMemberName(self, user_name):
 		a = self._select("SELECT member_id FROM members WHERE name = %s ", (user_name,), True)	
 		if a:
-			return self.getTasksByMemberName(a[1])
+			return self.getTasksByMemberId(a[1])
 		return False
 
 	def getMembers(self):
@@ -248,7 +249,7 @@ class BotTasks(BotDatabase):
 			" WHERE exec_second is null and exec_time < now()",False,False)	
 		if a:
 			for i in a:
-				execTime=(" ",", exec_time = (%s::timestamptz+'1 day'::interval)")[bool(i[3])]
+				execTime=(" ,exec_time = null",", exec_time = (%s::timestamptz+'1 day'::interval)")[bool(i[3])]
 				queryTuple=((i[0],),(i[4],i[0]))[bool(i[3])]
 				BotTasks.__instance._insert_del("UPDATE tasks SET last_exec = now()"+execTime+
 					" WHERE tasks_id = %s", queryTuple)
@@ -263,12 +264,12 @@ class BotTasks(BotDatabase):
 					execCommands.append(user+','+result+'\n')
 
 		a = BotTasks.__instance._select("SELECT tasks_id,name,exec_command,"+
-			" 	exec_period,exec_second FROM tasks "+
+			" exec_period,exec_second FROM tasks "+
 			" JOIN members USING(members_id)"+
-			" WHERE exec_second::text::interval+exec_time < now()",False,False)	
+			" WHERE exec_second::text::interval+last_exec < now()",False,False)	
 		if a:
 			for i in a:
-				execTime=(" ",", exec_time = (now()+%s::text::interval)")[bool(i[3])]
+				execTime=(" ",", exec_time = (now()+%s::text::interval)")[bool(i[3] ==True)]
 				queryTuple=((i[0],),(i[4],i[0]))[bool(i[3])]
 				BotTasks.__instance._insert_del("UPDATE tasks SET last_exec = now()"+execTime+
 					" WHERE tasks_id = %s",queryTuple)
@@ -298,7 +299,7 @@ class BotTasks(BotDatabase):
 				return BotTasks.__instance._insert_del("INSERT INTO tasks (members_id,exec_command,exec_time) "+
 					" VALUES (%s,%s,%s::timestamptz)", (member_id,exec_command, a))
 			elif b == 1:
-				a = time.strftime("%d.%m.%Y")+' '+a
+				a = time.strftime("%Y-%m-%d")+' '+a
 				return BotTasks.__instance._insert_del("INSERT INTO tasks (members_id,exec_command,exec_time,exec_period) "+
 					" VALUES (%s,%s,%s::timestamptz,%s)", (member_id,exec_command, a, period))
 			elif b == 2:
