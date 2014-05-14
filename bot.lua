@@ -10,15 +10,18 @@ function on_msg_receive (msg)
 		end 
 		if msg.to.type == "chat" then
 			sender = msg.to.title
+			sender_2 = msg.from.print_name
 		elseif msg.to.type == "encr_chat" then
 			sender = msg.to.print_name
+			sender_2 = msg.from.print_name
 		else 
 			sender = msg.from.print_name
+			sender_2 = sender
 		end
 		if sender == "TimmyServer" then
 			return
 		end         
-		local value = io.popen("python /var/www/tgcli_bot/bot.py -n " .. sender .. " -m '".. message.."'" )
+		local value = io.popen("python /var/www/tgcli_bot/bot.py -n " .. sender .. " -s " .. sender_2 .." -m '".. message.."'" )
 		local result = value:read("*a")
 		value:close()
 		if not (result == nil or result == "" ) then
