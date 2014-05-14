@@ -143,7 +143,7 @@ def __meme(__sMeme, __dMeme):
 			__lResults.append(str(__part))
 	if __lResults:
 		__iRnd = random.randint(1,len(__lResults))
-		return (__dMeme + str(__lResults[__iRnd]))
+		return ("{{photo}}"+__dMeme + str(__lResults[__iRnd]))
 	else:
 		return ("Kein passendes Meme gefunden")
 

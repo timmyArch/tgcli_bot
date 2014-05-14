@@ -26,22 +26,7 @@ function on_msg_receive (msg)
 		value:close()
 		rep = result:match("{{photo}}([^,]+)")
 		if rep then
-			a = rep:match("([A-z/0-9]+\.gif)")
-			if a then
-				send_photo (rep,a)
-			end
-			a = rep:match("([A-z/0-9]+\.png)")
-			if a then
-				send_photo (rep,a)
-			end
-			a = rep:match("([A-z/0-9]+\.jpeg)")
-			if a then
-				send_photo (rep,a)
-			end
-			a = rep:match("([A-z/0-9]+\.jpg)")
-			if a then
-				send_photo (rep,a)
-			end
+			io.popen('FILE=/tmp/luabot.tmp; echo "{{photo}}'..sender..','..rep..'" >> $FILE ')
 		else
 			if not (result == nil or result == "" ) then
 				send_msg (sender,result)
