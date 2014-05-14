@@ -113,23 +113,44 @@ def __getUptime():
 def __getLoad():
 	return (os.getloadavg())
 
-def __getUserID(__sUser):
+def __getUserID(__sName):
 	__tMembers = botDatabase.getMembers()
 	for __part in __tMembers:
-		if __sUser in __part:
-			return (str(__tMembers).split(",")[0][1:0])
+		if __sName in __part:
+			return (str(__part).split(",")[0][1:])
 
-#def __showTasks(__sName):
-	
+def __showTasks(__sName):
+	__sUserID = __getUserID(__sName)
+	__tTasks = botDatabase.getTasksByMemberId(__sUserID)
+	__sOutput = ""
+	for __part in __tTasks:
+		if not __part[3] == None:
+			__sOutput += str(__part[2]) + str(__part[3])[:19] + "\n"
+	return (__sOutput[:-1])
 
 #def __addTask():
 	
 
-#def __delTask(TaskID):
-	
+def __delTask(__iTaskID):
+	botDatabase.delTask(__iTaskID)
+	return ("Task mit der ID " + str(__iTaskID) + " wurde geloescht")
 
-#def __listMemes():
-	
+def __meme(__sMeme, __dMeme):
+	__tMemes = os.listdir(__dMeme)
+	__lResults = []
+	for __part in __tMemes:
+		if __sMeme in __part:
+			__lResults.append(str(__part))
+	if __lResults:
+		__iRnd = random.randint(1,len(__lResults))
+		return (__dMeme + str(__lResults[__iRnd]))
+	else:
+		return ("Kein passendes Meme gefunden")
 
-#def __meme(__sMeme):
-	
+def __correctTim(__sMessage, __fSmiley):
+	__iRnd = random.randint(1,10)
+	__tSmileys = __readTextfile(__fSmiley)
+	if __iRnd % 3 == 0:
+		for __sPart in __tSmileys:
+			if __sMessage == str(__sPart).split("#")[0]:
+				return (str(__sPart).split("#")[1][:-1])

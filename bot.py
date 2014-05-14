@@ -18,6 +18,7 @@
 """
 
 import cmd
+import ConfigParser
 import random
 import re
 import pycurl
@@ -28,31 +29,42 @@ from db import BotTasks
 
 #variable declaration
 botDatabase = BotTasks()
-parser = OptionParser(usage = "usage: %prog [options] arg1 arg2")
-parser.add_option("-n",
+__parserOptions = OptionParser(usage = "usage: %prog [options] arg1 arg2")
+__parserOptions.add_option("-n",
 									"--name",
 									dest="name",
 									type="string",
 									default=False,
-									help="name of the sender")
-parser.add_option("-m",
+									help="name of the chat")
+__parserOptions.add_option("-m",
 									"--message",
 									dest="message",
 									type="string",
 									default=False,
 									help="message from telegram")
-parser.add_option("-t",
+__parserOptions.add_option("-s",
+									"--sender",
+									dest="sender",
+									type="string",
+									default=False,
+									help="name of the sender")
+__parserOptions.add_option("-t",
 									"--task",
 									action="store_true",
 									dest="task",
 									help="starts just the taskscheduler")
-(options, args) = parser.parse_args()
+(options, args) = __parserOptions.parse_args()
 sName = options.name
 sMessage = options.message
+sSender = options.sender
 bTasks = options.task
-__path=os.path.dirname(os.path.realpath(sys.argv[0]))
-fSallutation = __path+"/content_files/sallutation.txt"
-fBOFH = __path+"/content_files/bofhquotes.txt"
+__parserConfig = ConfigParser.ConfigParser()
+__pathConfigFile = "/usr/local/etc/telpy/bot.cfg"
+__parserConfig.read(__pathConfigFile)
+fSallutation = __parserConfig.get('Files', 'sallutation')
+fBOFH = __parserConfig.get('Files', 'bofh')
+fSmiley = __parserConfig.get('Files', 'smiley')
+dMeme = __parserConfig.get('Directory', 'memes')
 
 def __checkMessage():
 	__membercommands = botDatabase.getMemberCommandsByMemberNames(sName)
@@ -66,6 +78,8 @@ def __checkMessage():
 				return cmd.__getSallutation(fSallutation)
 			if cmd.__checkURL(sMessage):
 				return cmd.__getHttpTitle(sMessage)
+			if sSender.lower() == "tim_meusel":
+				return cmd.__correctTim(sMessage, fSmiley)
 
 def __performCommand(sMessage):
 	__aArgs = sMessage.split(" ")
@@ -83,20 +97,16 @@ def __performCommand(sMessage):
 		return(cmd.__listCommands(sName))
 	elif __aArgs[0] == ",hint" or __aArgs[0] == "!hint":
 		return(cmd.__hint(sMessage))
-	#elif __aArgs[0] == ",showAllTasks" or __aArgs[0] == "!showAllTasks":
-	#	return(cmd.__showAllTasks())
-	#elif __aArgs[0] == ",showTasks" or __aArgs[0] == "!showTasks":
-	#	return(cmd.__showTasks())
+	elif __aArgs[0] == ",showTasks" or __aArgs[0] == "!showTasks":
+		return(cmd.__showTasks(sName))
 	#elif __aArgs[0] == ",addTask" or __aArgs[0] == "!addTask":
 	#	return(cmd.__addTasks())
 	#elif __aArgs[0] == ",delTask" or __aArgs[0] == "!delTask":
 	#	return(cmd.__delTasks(__aArgs[1]))
 	elif __aArgs[0] == ",bofh" or __aArgs[0] == "!bofh":
 		return(cmd.__getBOFH(fBOFH))
-	#elif __aArgs[0] == ",listMemes" or __aArgs[0] == "!listMemes":
-	#	return(cmd.__listMemes())
-	##elif __aArgs[0] == ",meme" or __aArgs[0] == "!meme":
-	#	return(cmd.__meme(__aArgs[1]))
+	elif __aArgs[0] == ",meme" or __aArgs[0] == "!meme":
+		return(cmd.__meme(__aArgs[1], dMeme))
 
 if bTasks:
 	botDatabase.taskScheduler()
