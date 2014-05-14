@@ -24,8 +24,28 @@ function on_msg_receive (msg)
 		local value = io.popen("python /var/www/tgcli_bot/bot.py -n " .. sender .. " -s " .. sender_2 .." -m '".. message.."'" )
 		local result = value:read("*a")
 		value:close()
-		if not (result == nil or result == "" ) then
-			send_msg (sender,result)
+		rep = sender:match("{{photo}}([^,]+)")
+		if rep then
+			a = message:match("([A-z/0-9]+\.gif)")
+			if a then
+				send_photo (rep,a)
+			end
+			a = message:match("([A-z/0-9]+\.png)")
+			if a then
+				send_photo (rep,a)
+			end
+			a = message:match("([A-z/0-9]+\.jpeg)")
+			if a then
+				send_photo (rep,a)
+			end
+			a = message:match("([A-z/0-9]+\.jpg)")
+			if a then
+				send_photo (rep,a)
+			end
+		else
+			if not (result == nil or result == "" ) then
+				send_msg (sender,result)
+			end
 		end 
 	end 
 end
