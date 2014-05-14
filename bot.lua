@@ -31,14 +31,36 @@ function on_msg_receive (msg)
 end
 
 function on_second_scheduler_end ()
-	local file = io.popen('FILE=/tmp/luabot.tmp; head -n1 $FILE && sed -i "1d" $FILE')
-	local output = file:read('*all')
-	repicent, message = output:match("([^,]+),([^,]+)")
-	if repicent == "" or message == "" then
-		return
+	for variable = 0, 10, 1 do
+		local file = io.popen('FILE=/tmp/luabot.tmp; head -n1 $FILE && sed -i "1d" $FILE')
+		local output = file:read('*all')
+		repicent, message = output:match("([^,]+),([^,]+)")
+		if not repicent or not message or repicent == "" or message == "" then
+			return
+		end
+		rep = repicent:match("{{photo}}([^,]+)")
+		if rep then
+			a = message:match("([A-z/0-9]+\.gif)")
+			if a then
+				send_photo (rep,a)
+			end
+			a = message:match("([A-z/0-9]+\.png)")
+			if a then
+				send_photo (rep,a)
+			end
+			a = message:match("([A-z/0-9]+\.jpeg)")
+			if a then
+				send_photo (rep,a)
+			end
+			a = message:match("([A-z/0-9]+\.jpg)")
+			if a then
+				send_photo (rep,a)
+			end
+		else
+			send_msg (repicent,message)
+		end
+		file:close()
 	end
-	send_msg (repicent,message)
-	file:close()
 end
 
 function on_our_id (id)
