@@ -85,6 +85,7 @@ def __getUsedMem():
 	return str((psutil.used_phymem() / 1024**2))+" MB used ..."
 
 def __httpPing(url, reverseChecking=1):
+ try:
   buf = buff = StringIO()
   c = pycurl.Curl()
   c.setopt(pycurl.CONNECTTIMEOUT, 1)
@@ -100,9 +101,11 @@ def __httpPing(url, reverseChecking=1):
   c.perform()
   c.close() 
   retstring = buf.getvalue()
-  if retstring and 'Status: 200 OK' in retstring:
+  if retstring and 'HTTP/1.1 200 OK' in retstring:
     return url+" liefert Status OK"
   else:
+    return url+" liefert keinen Status OK"
+ except:
     return url+" liefert keinen Status OK"
 
 def __getHttpContent (sMessage):
