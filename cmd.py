@@ -25,6 +25,7 @@ import sys
 import os
 import pycurl
 import random
+import cStringIO
 from datetime import timedelta
 from optparse import OptionParser
 from StringIO import StringIO
@@ -82,6 +83,27 @@ def __getDiskUsage():
 
 def __getUsedMem():
 	return str((psutil.used_phymem() / 1024**2))+" MB used ..."
+
+def __httpPing(url, reverseChecking=1):
+  buf = buff = StringIO()
+  c = pycurl.Curl()
+  c.setopt(pycurl.CONNECTTIMEOUT, 1)
+  c.setopt(pycurl.TIMEOUT, 1)
+  c.setopt(pycurl.NOSIGNAL, 1)
+  c.setopt(pycurl.FOLLOWLOCATION, 1)
+  c.setopt(pycurl.URL, url)
+  c.setopt(pycurl.SSL_VERIFYPEER, 0)
+  c.setopt(pycurl.SSL_VERIFYHOST, 0)
+  c.setopt(pycurl.WRITEFUNCTION, buff.write)
+  c.setopt(pycurl.HEADERFUNCTION, buf.write)
+  c.setopt(pycurl.HTTPGET, 1)
+  c.perform()
+  c.close() 
+  retstring = buf.getvalue()
+  if retstring and 'Status: 200 OK' in retstring:
+    return url+" liefert Status OK"
+  else:
+    return url+" liefert keinen Status OK"
 
 def __getHttpContent (sMessage):
 	__tMatchObj = re.findall("(https?://\S+)", sMessage)

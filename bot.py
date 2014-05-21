@@ -85,6 +85,8 @@ def __performCommand(sMessage):
 	__aArgs = sMessage.split(" ")
 	if __aArgs[0] == ",ping" or __aArgs[0] == "!ping":
 		return(cmd.__ping(__aArgs[1]))
+	elif __aArgs[0] == ",http" or __aArgs[0] == "!http":
+		return(cmd.__httpPing(__aArgs[1]))
 	elif __aArgs[0] == ",uptime" or __aArgs[0] == "!uptime":
 		return(cmd.__getUptime())
 	elif __aArgs[0] == ",load" or __aArgs[0] == "!load":
